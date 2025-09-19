@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://staging-db:5432/userdb_staging
+    username: stg_user
+    password: stg_pass
+
+server:
+  port: 8081
+
+logging:
+  level:
+    root: INFO

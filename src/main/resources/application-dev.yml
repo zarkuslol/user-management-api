@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/userdb_dev
+    username: dev_user
+    password: dev_pass
+
+  jpa:
+    show-sql: true
+
+server:
+  port: 8080
+
+logging:
+  level:
+    org.springframework: DEBUG

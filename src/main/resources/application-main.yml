@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://prod-db:5432/userdb_prod
+    username: prod_user
+    password: ${DB_PASSWORD}   # Senha vinda de variável de ambiente
+
+server:
+  port: 8080
+
+logging:
+  level:
+    root: WARN
