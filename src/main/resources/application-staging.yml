@@ -1,11 +1,16 @@
 spring:
   datasource:
-    url: jdbc:postgresql://staging-db:5432/userdb_staging
-    username: stg_user
-    password: stg_pass
+    url: jdbc:postgresql://postgres-staging:5432/userdb_staging
+    username: ${STG_DB_USER}
+    password: ${STG_DB_PASSWORD}
+
+  security:
+    user:
+      name: ${STG_NAME}
+      password: ${STG_PASSWORD}
 
 server:
-  port: 8081
+  port: 8080
 
 logging:
   level:

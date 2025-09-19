@@ -1,11 +1,16 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/userdb_dev
-    username: dev_user
-    password: dev_pass
+    url: jdbc:postgresql://postgres-dev:5432/userdb_dev # Serviço correspondente do Docker
+    username: ${DEV_DB_USER}
+    password: ${DEV_DB_PASSWORD}
 
   jpa:
     show-sql: true
+
+  security:
+    user:
+      name: ${DEV_NAME}
+      password: ${DEV_PASSWORD}
 
 server:
   port: 8080
