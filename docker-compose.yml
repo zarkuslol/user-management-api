@@ -42,6 +42,7 @@ services:
       STG_DB_PASSWORD: ${STG_DB_PASSWORD}
       STG_NAME: ${STG_NAME}
       STG_PASSWORD: ${STG_PASSWORD}
+      APP_SECURITY_JWT_SECRET: ${APP_SECURITY_JWT_SECRET}
     ports:
       - "8080:8080"
     depends_on:
