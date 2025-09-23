@@ -1,4 +1,0 @@
-# JWT Configuration for Test Profile
-# Copy this file to 'application-test.properties' and fill in the values.
-app.security.jwt.secret=CHANGE_ME_TO_A_TEST_SECRET
-app.security.jwt.expiration-ms=3600000
