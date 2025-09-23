@@ -1,6 +1,8 @@
+# spring.application.name=usermanager
+
 spring:
   application:
-    name: user-management-api
+    name: usermanager
 
   jpa:
     hibernate:
@@ -16,6 +18,13 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+
+# JWT Configuration
+app:
+  security:
+    jwt:
+      secret: "${APP_SECURITY_JWT_SECRET}"
+      expiration-ms: 3600000
 
 logging:
   level:
