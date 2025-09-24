@@ -9,6 +9,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserMapper {
 
+    private final RoleMapper roleMapper;
+
+    public UserMapper(RoleMapper roleMapper) {
+        this.roleMapper = roleMapper;
+    }
+
     public User toDomain(UserEntity entity) {
         if (entity == null) {
             return null;
@@ -19,7 +25,11 @@ public class UserMapper {
         domain.setEmail(new Email(entity.getEmail()));
         domain.setPassword(new PasswordHash(entity.getPassword()));
         domain.setEnabled(entity.isEnabled());
-        // TODO: Mapear a role quando a RoleEntity for criada
+
+        domain.setRole(roleMapper.toDomain(entity.getRole()));
+        domain.setCreatedAt(entity.getCreatedAt());
+        domain.setUpdatedAt(entity.getUpdatedAt());
+
         return domain;
     }
 
@@ -33,7 +43,7 @@ public class UserMapper {
         entity.setEmail(domain.getEmail().address());
         entity.setPassword(domain.getPassword().hash());
         entity.setEnabled(domain.isEnabled());
-        // TODO: Mapear a role quando a RoleEntity for criada
+        entity.setRole(roleMapper.toEntity(domain.getRole()));
         return entity;
     }
 }
