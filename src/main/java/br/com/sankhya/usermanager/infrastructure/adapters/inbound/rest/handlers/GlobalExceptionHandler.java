@@ -1,5 +1,6 @@
 package br.com.sankhya.usermanager.infrastructure.adapters.inbound.rest.handlers;
 
+import br.com.sankhya.usermanager.domain.model.exceptions.UserAlreadyExistsException;
 import br.com.sankhya.usermanager.infrastructure.adapters.inbound.rest.dto.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,17 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 
-    // Podemos adicionar outros @ExceptionHandler aqui para outros tipos de erro
-    // ex: @ExceptionHandler(UserNotFoundException.class)
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleUserAlreadyExistsException(UserAlreadyExistsException ex, HttpServletRequest request) {
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.CONFLICT.value(), // 409 Conflict
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    }
 }
