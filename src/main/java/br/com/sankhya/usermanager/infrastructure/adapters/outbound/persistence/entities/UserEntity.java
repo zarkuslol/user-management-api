@@ -24,7 +24,9 @@ public class UserEntity {
     @Column(nullable = false, unique = true)
     private String email;
 
-    // TODO: Mapear a relação com RoleEntity
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "role_id", nullable = false)
+    private RoleEntity role;
 
     @Column(nullable = false)
     private boolean enabled = true;
