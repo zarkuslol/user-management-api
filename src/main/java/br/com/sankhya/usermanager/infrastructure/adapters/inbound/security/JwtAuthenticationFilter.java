@@ -40,6 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     UserDetails userDetails = org.springframework.security.core.userdetails.User
                             .withUsername(user.getUsername())
                             .password(user.getPassword().hash()) // A senha não é usada para validação aqui, mas é parte do contrato
+                            .roles(user.getRole().getName())
                             .build();
 
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
