@@ -5,6 +5,7 @@ import br.com.sankhya.usermanager.domain.model.User;
 import br.com.sankhya.usermanager.domain.vo.Email;
 import br.com.sankhya.usermanager.infrastructure.adapters.outbound.persistence.entities.RoleEntity;
 import br.com.sankhya.usermanager.infrastructure.adapters.outbound.persistence.entities.UserEntity;
+import br.com.sankhya.usermanager.infrastructure.adapters.outbound.persistence.mappers.RoleMapper;
 import br.com.sankhya.usermanager.infrastructure.adapters.outbound.persistence.mappers.UserMapper;
 import br.com.sankhya.usermanager.infrastructure.adapters.outbound.persistence.repositories.JpaRoleRepository;
 import br.com.sankhya.usermanager.infrastructure.adapters.outbound.persistence.repositories.JpaUserRepository;
@@ -25,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest // Foco total na camada de persistência
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE) // Usa nosso banco do Testcontainers
-@Import({TestcontainersConfiguration.class, UserRepositoryAdapter.class, UserMapper.class}) // Importa o necessário
+@Import({TestcontainersConfiguration.class, UserRepositoryAdapter.class, UserMapper.class, RoleMapper.class}) // Importa o necessário
 @ActiveProfiles("test")
 class UserRepositoryAdapterIT {
 
