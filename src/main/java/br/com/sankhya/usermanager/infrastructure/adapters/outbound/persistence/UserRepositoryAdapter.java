@@ -51,9 +51,7 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
 
     @Override
     public Page<User> findAllByEnabled(boolean enabled, Pageable pageable) {
-        // Esta funcionalidade requer um novo método no JpaRepository
-        // Por enquanto, vamos retornar todos.
-        return userRepository.findAll(pageable).map(userMapper::toDomain);
+        return userRepository.findByEnabled(enabled, pageable).map(userMapper::toDomain);
     }
 
     @Override
