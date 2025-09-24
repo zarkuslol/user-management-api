@@ -1,6 +1,8 @@
 package br.com.sankhya.usermanager.domain.usecase;
 
+import br.com.sankhya.usermanager.domain.model.Role;
 import br.com.sankhya.usermanager.domain.model.User;
+import br.com.sankhya.usermanager.domain.model.exceptions.UserAlreadyExistsException;
 import br.com.sankhya.usermanager.domain.ports.inbound.UserManagementUseCase;
 import br.com.sankhya.usermanager.domain.ports.inbound.dtos.*;
 import br.com.sankhya.usermanager.domain.ports.outbound.PasswordHasherPort;
@@ -30,18 +32,33 @@ public class UserManagementUseCaseImpl implements UserManagementUseCase {
 
     @Override
     public User createUser(CreateUserCommand command) {
-        // Lógica de criação que já tínhamos testado
-        var role = roleRepositoryPort.findByName(command.role())
+        // 1. Valida se o username já existe
+        userRepositoryPort.findByUsername(command.username()).ifPresent(user -> {
+            throw new UserAlreadyExistsException("Username already exists: " + command.username());
+        });
+
+        // 2. Valida se o e-mail já existe
+        userRepositoryPort.findByEmail(new Email(command.email())).ifPresent(user -> {
+            throw new UserAlreadyExistsException("Email already registered: " + command.email());
+        });
+
+        // 1. Busca a Role no banco de dados através da porta de persistência
+        Role userRole = roleRepositoryPort.findByName(command.role())
                 .orElseThrow(() -> new IllegalArgumentException("Role not found: " + command.role()));
 
-        var user = new User();
-        user.setUsername(command.username());
-        user.setEmail(new Email(command.email()));
-        user.setPassword(new PasswordHash(passwordHasherPort.hash(command.password())));
-        user.setRole(role);
-        user.setEnabled(true);
+        // 2. Criptografa a senha recebida usando a porta de hashing
+        String hashedPassword = passwordHasherPort.hash(command.password());
 
-        return userRepositoryPort.save(user);
+        // 3. Cria o novo objeto de domínio User
+        User newUser = new User();
+        newUser.setUsername(command.username());
+        newUser.setEmail(new Email(command.email()));
+        newUser.setPassword(new PasswordHash(hashedPassword));
+        newUser.setRole(userRole);
+        newUser.setEnabled(true); // Usuários são criados como ativos por padrão
+
+        // 4. Salva o novo usuário através da porta de persistência e o retorna
+        return userRepositoryPort.save(newUser);
     }
 
     @Override
@@ -64,8 +81,20 @@ public class UserManagementUseCaseImpl implements UserManagementUseCase {
 
     @Override
     public Optional<User> updateUserProfile(Long id, UpdateUserCommand command) {
-        // TODO: Implementar
-        return Optional.empty();
+        // 1. Busca o usuário existente pelo ID
+        return userRepositoryPort.findById(id)
+                .map(userToUpdate -> {
+                    // 2. Busca a nova Role pelo nome
+                    Role newRole = roleRepositoryPort.findByName(command.role())
+                            .orElseThrow(() -> new IllegalArgumentException("Role not found: " + command.role()));
+
+                    // 3. Atualiza os campos do objeto de domínio
+                    userToUpdate.setUsername(command.username());
+                    userToUpdate.setRole(newRole);
+
+                    // 4. Salva o usuário atualizado e retorna
+                    return userRepositoryPort.save(userToUpdate);
+                });
     }
 
     @Override
@@ -90,6 +119,12 @@ public class UserManagementUseCaseImpl implements UserManagementUseCase {
 
     @Override
     public void deleteUserById(Long id) {
-        // TODO: Implementar
+        // 1. Verifica se o usuário existe antes de tentar deletar
+        userRepositoryPort.findById(id).ifPresent(user -> {
+            // 2. Se existe, chama a porta de persistência para deletar
+            userRepositoryPort.deleteById(id);
+        });
+        // NOTA: Se o usuário não existe, a operação termina silenciosamente.
+        // Isso é uma decisão de design para não expor quais IDs são válidos ou não.
     }
 }
