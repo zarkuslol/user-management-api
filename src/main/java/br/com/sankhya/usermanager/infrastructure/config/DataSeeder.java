@@ -1,4 +1,4 @@
-package br.com.sankhya.usermanager.infrastructure.configuration;
+package br.com.sankhya.usermanager.infrastructure.config;
 
 import br.com.sankhya.usermanager.infrastructure.adapters.outbound.persistence.entities.UserEntity;
 import br.com.sankhya.usermanager.infrastructure.adapters.outbound.persistence.repositories.JpaRoleRepository;
@@ -19,18 +19,21 @@ public class DataSeeder {
             JpaRoleRepository roleRepository,
             PasswordEncoder passwordEncoder) {
 
+        String username = System.getenv("ADMIN_USER");
+        String password = System.getenv("ADMIN_PASSWORD");
+
         return args -> {
-            if (userRepository.findByUsername("dev").isEmpty()) {
+            if (userRepository.findByUsername(username).isEmpty()) {
 
                 // Busca a Role 'ADMIN' que já foi inserida pelo V1__init.sql
                 roleRepository.findByName("ADMIN").ifPresent(adminRole -> {
-                    System.out.println("Criando usuário de desenvolvimento 'dev'...");
+                    System.out.println("Criando usuário administrador...");
                     UserEntity devUser = new UserEntity();
-                    devUser.setUsername("dev");
-                    devUser.setPassword(passwordEncoder.encode("dev123"));
+                    devUser.setUsername(username);
+                    devUser.setPassword(passwordEncoder.encode(password));
                     devUser.setEmail("dev@example.com");
                     devUser.setEnabled(true);
-                    devUser.setRole(adminRole); // <-- A LINHA QUE FALTAVA!
+                    devUser.setRole(adminRole);
 
                     userRepository.save(devUser);
                     System.out.println("Usuário 'dev' criado com sucesso.");
