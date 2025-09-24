@@ -4,11 +4,6 @@ spring:
     username: ${STG_DB_USER}
     password: ${STG_DB_PASSWORD}
 
-  security:
-    user:
-      name: ${STG_NAME}
-      password: ${STG_PASSWORD}
-
 server:
   port: 8080
 
