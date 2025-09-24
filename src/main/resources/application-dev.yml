@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres-dev:5432/userdb_dev # Serviço correspondente do Docker
+    username: ${DEV_DB_USER}
+    password: ${DEV_DB_PASSWORD}
+
+  jpa:
+    show-sql: true
+
+server:
+  port: 8080
+
+logging:
+  level:
+    org.springframework: DEBUG
