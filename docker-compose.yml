@@ -1,31 +1,17 @@
 version: "3.9"
 
 services:
-  postgres-dev:
+  postgres: # Nome simplificado
     image: postgres:16
-    container_name: postgres_dev
+    container_name: postgres_db
     environment:
-      POSTGRES_DB: userdb_dev
-      POSTGRES_USER: ${DEV_DB_USER}
-      POSTGRES_PASSWORD: ${DEV_DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
-      - dev_data:/var/lib/postgresql/data
-    networks:
-      - user-net
-
-  postgres-staging:
-    image: postgres:16
-    container_name: postgres_staging
-    environment:
-      POSTGRES_DB: userdb_staging
-      POSTGRES_USER: ${STG_DB_USER}
-      POSTGRES_PASSWORD: ${STG_DB_PASSWORD}
-    ports:
-      - "5433:5432"
-    volumes:
-      - stg_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - user-net
 
@@ -33,25 +19,23 @@ services:
     build: .
     container_name: user_management_api
     environment:
-      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
-      DEV_DB_USER: ${DEV_DB_USER}
-      DEV_DB_PASSWORD: ${DEV_DB_PASSWORD}
-      STG_DB_USER: ${STG_DB_USER}
-      STG_DB_PASSWORD: ${STG_DB_PASSWORD}
+      DB_HOST: postgres # Aponta para o serviço 'postgres'
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
       APP_SECURITY_JWT_SECRET: ${APP_SECURITY_JWT_SECRET}
+      APP_SECURITY_JWT_EXPIRATION_TIME: ${APP_SECURITY_JWT_EXPIRATION_TIME}
       ADMIN_USER: ${ADMIN_USER}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
     ports:
       - "8080:8080"
     depends_on:
-      - postgres-dev
-      - postgres-staging
+      - postgres
     networks:
       - user-net
 
 volumes:
-  dev_data:
-  stg_data:
+  postgres_data:
 
 networks:
   user-net:

@@ -7,8 +7,11 @@ import br.com.sankhya.usermanager.domain.ports.inbound.dtos.UpdateUserCommand;
 import br.com.sankhya.usermanager.domain.ports.inbound.dtos.UpdateUserEmailCommand;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
 import java.util.Optional;
 
+@Service
 public interface UserManagementUseCase {
     // --- CREATE ---
     User createUser(CreateUserCommand command);
