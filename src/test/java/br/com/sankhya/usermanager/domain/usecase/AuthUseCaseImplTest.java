@@ -1,6 +1,7 @@
 package br.com.sankhya.usermanager.domain.usecase;
 
 import br.com.sankhya.usermanager.domain.model.User;
+import br.com.sankhya.usermanager.domain.ports.inbound.AuthUseCase;
 import br.com.sankhya.usermanager.domain.ports.inbound.dtos.LoginCommand;
 import br.com.sankhya.usermanager.domain.ports.outbound.PasswordHasherPort;
 import br.com.sankhya.usermanager.domain.ports.outbound.TokenServicePort;
@@ -40,6 +41,7 @@ class AuthUseCaseImplTest {
         User user = new User();
         user.setUsername("testuser");
         user.setPassword(new PasswordHash("hashedPassword"));
+        user.setEnabled(true);
 
         when(userRepositoryPort.findByUsername("testuser")).thenReturn(Optional.of(user));
         when(passwordHasherPort.check("correctPassword", "hashedPassword")).thenReturn(true);
@@ -77,6 +79,23 @@ class AuthUseCaseImplTest {
         when(userRepositoryPort.findByUsername("nonexistent")).thenReturn(Optional.empty());
 
         // Act & Assert
+        assertThrows(BadCredentialsException.class, () -> authUseCase.login(command));
+    }
+
+    @Test
+    @DisplayName("Should throw BadCredentialsException for a disabled user")
+    void login_WithDisabledUser_ShouldThrowException() {
+        // Arrange
+        LoginCommand command = new LoginCommand("disableduser", "anyPassword");
+        User disabledUser = new User();
+        disabledUser.setUsername("disableduser");
+        disabledUser.setPassword(new PasswordHash("hashedPassword"));
+        disabledUser.setEnabled(false); // <-- O ponto chave do teste
+
+        when(userRepositoryPort.findByUsername("disableduser")).thenReturn(Optional.of(disabledUser));
+
+        // Act & Assert
+        // A exceção deve ser a mesma para não dar pistas a um atacante
         assertThrows(BadCredentialsException.class, () -> authUseCase.login(command));
     }
 }

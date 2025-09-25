@@ -33,6 +33,10 @@ public class AuthUseCaseImpl implements AuthUseCase {
             throw new BadCredentialsException("Invalid username or password");
         }
 
+        if (!user.isEnabled()) {
+            throw new BadCredentialsException("User without access");
+        }
+
         var token = tokenServicePort.generateToken(user);
         return new LoginResponse(token);
     }
