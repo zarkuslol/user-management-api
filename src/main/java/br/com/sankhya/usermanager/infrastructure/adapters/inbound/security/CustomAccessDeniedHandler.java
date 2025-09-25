@@ -1,6 +1,6 @@
 package br.com.sankhya.usermanager.infrastructure.adapters.inbound.security;
 
-import br.com.sankhya.usermanager.infrastructure.adapters.inbound.rest.dto.ErrorResponse;
+import br.com.sankhya.usermanager.infrastructure.adapters.inbound.rest.dto.ErrorResponseDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.servlet.ServletException;
@@ -23,7 +23,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException)
             throws IOException, ServletException {
 
-        ErrorResponse errorResponse = new ErrorResponse(
+        ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO(
                 LocalDateTime.now(),
                 HttpServletResponse.SC_FORBIDDEN,
                 "Forbidden",
@@ -33,6 +33,6 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
+        response.getWriter().write(objectMapper.writeValueAsString(errorResponseDTO));
     }
 }

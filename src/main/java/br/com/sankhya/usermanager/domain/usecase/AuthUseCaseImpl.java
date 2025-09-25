@@ -1,10 +1,8 @@
 package br.com.sankhya.usermanager.domain.usecase;
 
 import br.com.sankhya.usermanager.domain.ports.inbound.AuthUseCase;
-import br.com.sankhya.usermanager.domain.ports.inbound.dtos.ForgotPasswordCommand;
 import br.com.sankhya.usermanager.domain.ports.inbound.dtos.LoginCommand;
 import br.com.sankhya.usermanager.domain.ports.inbound.dtos.LoginResponse;
-import br.com.sankhya.usermanager.domain.ports.inbound.dtos.ResetPasswordCommand;
 import br.com.sankhya.usermanager.domain.ports.outbound.PasswordHasherPort;
 import br.com.sankhya.usermanager.domain.ports.outbound.TokenServicePort;
 import br.com.sankhya.usermanager.domain.ports.outbound.UserRepositoryPort;
