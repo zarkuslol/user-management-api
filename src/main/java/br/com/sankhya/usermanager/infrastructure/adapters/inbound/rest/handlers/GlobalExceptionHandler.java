@@ -1,7 +1,7 @@
 package br.com.sankhya.usermanager.infrastructure.adapters.inbound.rest.handlers;
 
 import br.com.sankhya.usermanager.domain.model.exceptions.UserAlreadyExistsException;
-import br.com.sankhya.usermanager.infrastructure.adapters.inbound.rest.dto.ErrorResponse;
+import br.com.sankhya.usermanager.infrastructure.adapters.inbound.rest.dto.ErrorResponseDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,9 +15,9 @@ import java.time.LocalDateTime;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ErrorResponse> handleBadCredentialsException(BadCredentialsException ex, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponseDTO> handleBadCredentialsException(BadCredentialsException ex, HttpServletRequest request) {
 
-        ErrorResponse errorResponse = new ErrorResponse(
+        ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO(
                 LocalDateTime.now(),
                 HttpStatus.UNAUTHORIZED.value(),
                 HttpStatus.UNAUTHORIZED.getReasonPhrase(),
@@ -25,13 +25,13 @@ public class GlobalExceptionHandler {
                 request.getRequestURI()
         );
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(errorResponseDTO, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handleUserAlreadyExistsException(UserAlreadyExistsException ex, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponseDTO> handleUserAlreadyExistsException(UserAlreadyExistsException ex, HttpServletRequest request) {
 
-        ErrorResponse errorResponse = new ErrorResponse(
+        ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO(
                 LocalDateTime.now(),
                 HttpStatus.CONFLICT.value(), // 409 Conflict
                 HttpStatus.CONFLICT.getReasonPhrase(),
@@ -39,6 +39,6 @@ public class GlobalExceptionHandler {
                 request.getRequestURI()
         );
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+        return new ResponseEntity<>(errorResponseDTO, HttpStatus.CONFLICT);
     }
 }

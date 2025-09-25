@@ -2,7 +2,7 @@ package br.com.sankhya.usermanager.infrastructure.adapters.inbound.rest.dto;
 
 import java.time.LocalDateTime;
 
-public record ErrorResponse(
+public record ErrorResponseDTO(
         LocalDateTime timestamp,
         int status,
         String error,
