@@ -209,4 +209,25 @@ class UserControllerIT {
                         .content(commandJson))
                 .andExpect(status().isNoContent());
     }
+
+    @Test
+    @DisplayName("PATCH /users/{id}/password should change password and return 204 No Content")
+    @WithMockUser // Simula um usuário logado
+    void changeUserPassword_ShouldReturn204NoContent() throws Exception {
+        // Arrange
+        var commandJson = """
+        {
+            "oldPassword": "currentPassword123",
+            "newPassword": "newStrongPassword456"
+        }
+    """;
+        doNothing().when(userManagementUseCase).changeUserPassword(any(), any());
+
+        // Act & Assert
+        mockMvc.perform(patch("/users/1/password")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(commandJson))
+                .andExpect(status().isNoContent());
+    }
 }
