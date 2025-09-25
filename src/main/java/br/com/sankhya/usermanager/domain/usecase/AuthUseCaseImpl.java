@@ -40,14 +40,4 @@ public class AuthUseCaseImpl implements AuthUseCase {
         var token = tokenServicePort.generateToken(user);
         return new LoginResponse(token);
     }
-
-    @Override
-    public void requestPasswordReset(ForgotPasswordCommand command) {
-
-    }
-
-    @Override
-    public void resetPassword(ResetPasswordCommand command) {
-
-    }
 }
