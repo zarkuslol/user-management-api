@@ -2,10 +2,13 @@ package br.com.sankhya.usermanager.domain.usecase;
 
 import br.com.sankhya.usermanager.domain.model.Role;
 import br.com.sankhya.usermanager.domain.model.User;
+import br.com.sankhya.usermanager.domain.model.exceptions.UserAlreadyExistsException;
 import br.com.sankhya.usermanager.domain.ports.inbound.dtos.CreateUserCommand;
+import br.com.sankhya.usermanager.domain.ports.inbound.dtos.UpdateUserEmailCommand;
 import br.com.sankhya.usermanager.domain.ports.outbound.PasswordHasherPort;
 import br.com.sankhya.usermanager.domain.ports.outbound.RoleRepositoryPort;
 import br.com.sankhya.usermanager.domain.ports.outbound.UserRepositoryPort;
+import br.com.sankhya.usermanager.domain.vo.Email;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -102,5 +105,45 @@ class UserManagementUseCaseImplTest {
         // Garante que a lógica parou antes de tentar salvar o usuário ou hashear a senha
         verify(passwordHasherPort, never()).hash(anyString());
         verify(userRepositoryPort, never()).save(any(User.class));
+    }
+
+    @Test
+    @DisplayName("Should update user email successfully")
+    void updateUserEmail_WhenSuccessful_ShouldCallSave() {
+        // Arrange
+        var command = new UpdateUserEmailCommand("new.email@example.com");
+        User existingUser = new User();
+        existingUser.setId(1L);
+        existingUser.setEmail(new Email("old.email@example.com"));
+
+        when(userRepositoryPort.findById(1L)).thenReturn(Optional.of(existingUser));
+        when(userRepositoryPort.findByEmail(any(Email.class))).thenReturn(Optional.empty()); // Garante que o novo e-mail não está em uso
+
+        // Act
+        userManagementUseCase.updateUserEmail(1L, command);
+
+        // Assert
+        verify(userRepositoryPort, times(1)).save(existingUser);
+        assertEquals("new.email@example.com", existingUser.getEmail().address());
+    }
+
+    @Test
+    @DisplayName("Should throw exception when trying to update to an existing email")
+    void updateUserEmail_WhenEmailExists_ShouldThrowException() {
+        // Arrange
+        var command = new UpdateUserEmailCommand("existing.email@example.com");
+        User userToUpdate = new User();
+        userToUpdate.setId(1L);
+
+        User anotherUserWithEmail = new User();
+        anotherUserWithEmail.setId(2L);
+
+        when(userRepositoryPort.findById(1L)).thenReturn(Optional.of(userToUpdate));
+        when(userRepositoryPort.findByEmail(new Email("existing.email@example.com"))).thenReturn(Optional.of(anotherUserWithEmail));
+
+        // Act & Assert
+        assertThrows(UserAlreadyExistsException.class, () -> {
+            userManagementUseCase.updateUserEmail(1L, command);
+        });
     }
 }

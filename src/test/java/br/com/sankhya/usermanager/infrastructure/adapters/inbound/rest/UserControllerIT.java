@@ -193,4 +193,20 @@ class UserControllerIT {
                 .andExpect(status().isNoContent());
     }
 
+    @Test
+    @DisplayName("PATCH /users/{id}/email should update email and return 204 No Content")
+    @WithMockUser(roles = "ADMIN")
+    void updateUserEmail_ShouldReturn204NoContent() throws Exception {
+        // Arrange
+        var commandJson = "{ \"newEmail\": \"new.email@example.com\" }";
+        // Configuramos o mock para não fazer nada (void) quando o método for chamado
+        doNothing().when(userManagementUseCase).updateUserEmail(any(), any());
+
+        // Act & Assert
+        mockMvc.perform(patch("/users/1/email")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(commandJson))
+                .andExpect(status().isNoContent());
+    }
 }
