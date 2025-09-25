@@ -3,18 +3,22 @@ package br.com.sankhya.usermanager.domain.usecase;
 import br.com.sankhya.usermanager.domain.model.Role;
 import br.com.sankhya.usermanager.domain.model.User;
 import br.com.sankhya.usermanager.domain.model.exceptions.UserAlreadyExistsException;
+import br.com.sankhya.usermanager.domain.ports.inbound.dtos.ChangePasswordCommand;
 import br.com.sankhya.usermanager.domain.ports.inbound.dtos.CreateUserCommand;
 import br.com.sankhya.usermanager.domain.ports.inbound.dtos.UpdateUserEmailCommand;
 import br.com.sankhya.usermanager.domain.ports.outbound.PasswordHasherPort;
 import br.com.sankhya.usermanager.domain.ports.outbound.RoleRepositoryPort;
 import br.com.sankhya.usermanager.domain.ports.outbound.UserRepositoryPort;
 import br.com.sankhya.usermanager.domain.vo.Email;
+import br.com.sankhya.usermanager.domain.vo.PasswordHash;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.BadCredentialsException;
+
 import java.util.Optional;
 import java.util.Set;
 
@@ -145,5 +149,45 @@ class UserManagementUseCaseImplTest {
         assertThrows(UserAlreadyExistsException.class, () -> {
             userManagementUseCase.updateUserEmail(1L, command);
         });
+    }
+
+    @Test
+    @DisplayName("Should change password when old password is correct")
+    void changeUserPassword_WithCorrectOldPassword_ShouldSucceed() {
+        // Arrange
+        var command = new ChangePasswordCommand("oldPass", "newPass");
+        User existingUser = new User();
+        existingUser.setId(1L);
+        existingUser.setPassword(new PasswordHash("hashedOldPass"));
+
+        when(userRepositoryPort.findById(1L)).thenReturn(Optional.of(existingUser));
+        when(passwordHasherPort.check("oldPass", "hashedOldPass")).thenReturn(true);
+        when(passwordHasherPort.hash("newPass")).thenReturn("hashedNewPass");
+
+        // Act
+        userManagementUseCase.changeUserPassword(1L, command);
+
+        // Assert
+        verify(userRepositoryPort, times(1)).save(existingUser);
+        assertEquals("hashedNewPass", existingUser.getPassword().hash());
+    }
+
+    @Test
+    @DisplayName("Should throw BadCredentialsException when old password is incorrect")
+    void changeUserPassword_WithIncorrectOldPassword_ShouldThrowException() {
+        // Arrange
+        var command = new ChangePasswordCommand("wrongOldPass", "newPass");
+        User existingUser = new User();
+        existingUser.setId(1L);
+        existingUser.setPassword(new PasswordHash("hashedOldPass"));
+
+        when(userRepositoryPort.findById(1L)).thenReturn(Optional.of(existingUser));
+        when(passwordHasherPort.check("wrongOldPass", "hashedOldPass")).thenReturn(false);
+
+        // Act & Assert
+        assertThrows(BadCredentialsException.class, () -> {
+            userManagementUseCase.changeUserPassword(1L, command);
+        });
+        verify(userRepositoryPort, never()).save(any(User.class)); // Garante que não tentou salvar
     }
 }

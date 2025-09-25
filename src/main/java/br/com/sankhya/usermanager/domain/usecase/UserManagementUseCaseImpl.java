@@ -12,6 +12,7 @@ import br.com.sankhya.usermanager.domain.vo.Email;
 import br.com.sankhya.usermanager.domain.vo.PasswordHash;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -118,7 +119,20 @@ public class UserManagementUseCaseImpl implements UserManagementUseCase {
 
     @Override
     public void changeUserPassword(Long id, ChangePasswordCommand command) {
-        // TODO: Implementar
+        // 1. Busca o usuário
+        User user = userRepositoryPort.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found")); // Idealmente, UserNotFoundException
+
+        // 2. Verifica se a senha antiga está correta
+        if (!passwordHasherPort.check(command.oldPassword(), user.getPassword().hash())) {
+            throw new BadCredentialsException("Incorrect old password");
+        }
+
+        // 3. Criptografa e atualiza a nova senha
+        user.setPassword(new PasswordHash(passwordHasherPort.hash(command.newPassword())));
+
+        // 4. Salva o usuário com a nova senha
+        userRepositoryPort.save(user);
     }
 
     @Override
