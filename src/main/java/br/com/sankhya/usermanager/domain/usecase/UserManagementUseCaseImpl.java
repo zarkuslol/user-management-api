@@ -99,7 +99,21 @@ public class UserManagementUseCaseImpl implements UserManagementUseCase {
 
     @Override
     public void updateUserEmail(Long id, UpdateUserEmailCommand command) {
-        // TODO: Implementar
+        // 1. Busca o usuário que será atualizado
+        User userToUpdate = userRepositoryPort.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found")); // Idealmente, uma exceção customizada
+
+        // 2. Verifica se o novo e-mail já está em uso por OUTRO usuário
+        Email newEmail = new Email(command.newEmail());
+        userRepositoryPort.findByEmail(newEmail).ifPresent(existingUser -> {
+            if (!existingUser.getId().equals(id)) {
+                throw new UserAlreadyExistsException("Email already registered: " + newEmail.address());
+            }
+        });
+
+        // 3. Atualiza o e-mail e salva
+        userToUpdate.setEmail(newEmail);
+        userRepositoryPort.save(userToUpdate);
     }
 
     @Override
