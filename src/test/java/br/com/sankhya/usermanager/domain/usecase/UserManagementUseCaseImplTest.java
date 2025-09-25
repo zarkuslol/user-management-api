@@ -3,8 +3,10 @@ package br.com.sankhya.usermanager.domain.usecase;
 import br.com.sankhya.usermanager.domain.model.Role;
 import br.com.sankhya.usermanager.domain.model.User;
 import br.com.sankhya.usermanager.domain.model.exceptions.UserAlreadyExistsException;
+import br.com.sankhya.usermanager.domain.ports.inbound.AuthUseCase;
 import br.com.sankhya.usermanager.domain.ports.inbound.dtos.ChangePasswordCommand;
 import br.com.sankhya.usermanager.domain.ports.inbound.dtos.CreateUserCommand;
+import br.com.sankhya.usermanager.domain.ports.inbound.dtos.LoginCommand;
 import br.com.sankhya.usermanager.domain.ports.inbound.dtos.UpdateUserEmailCommand;
 import br.com.sankhya.usermanager.domain.ports.outbound.PasswordHasherPort;
 import br.com.sankhya.usermanager.domain.ports.outbound.RoleRepositoryPort;
@@ -189,5 +191,39 @@ class UserManagementUseCaseImplTest {
             userManagementUseCase.changeUserPassword(1L, command);
         });
         verify(userRepositoryPort, never()).save(any(User.class)); // Garante que não tentou salvar
+    }
+
+    @Test
+    @DisplayName("Should activate a user successfully")
+    void activateUser_WhenUserExists_ShouldSetEnabledToTrueAndSave() {
+        // Arrange
+        User inactiveUser = new User();
+        inactiveUser.setId(1L);
+        inactiveUser.setEnabled(false);
+        when(userRepositoryPort.findById(1L)).thenReturn(Optional.of(inactiveUser));
+
+        // Act
+        userManagementUseCase.activateUser(1L);
+
+        // Assert
+        assertTrue(inactiveUser.isEnabled());
+        verify(userRepositoryPort, times(1)).save(inactiveUser);
+    }
+
+    @Test
+    @DisplayName("Should deactivate a user successfully")
+    void deactivateUser_WhenUserExists_ShouldSetEnabledToFalseAndSave() {
+        // Arrange
+        User activeUser = new User();
+        activeUser.setId(1L);
+        activeUser.setEnabled(true);
+        when(userRepositoryPort.findById(1L)).thenReturn(Optional.of(activeUser));
+
+        // Act
+        userManagementUseCase.deactivateUser(1L);
+
+        // Assert
+        assertFalse(activeUser.isEnabled());
+        verify(userRepositoryPort, times(1)).save(activeUser);
     }
 }

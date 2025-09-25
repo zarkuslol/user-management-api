@@ -230,4 +230,30 @@ class UserControllerIT {
                         .content(commandJson))
                 .andExpect(status().isNoContent());
     }
+
+    @Test
+    @DisplayName("PATCH /users/{id}/activate should call use case and return 204 No Content")
+    @WithMockUser(roles = "ADMIN") // Apenas administradores podem ativar/desativar
+    void activateUser_ShouldReturn204NoContent() throws Exception {
+        // Arrange
+        doNothing().when(userManagementUseCase).activateUser(1L);
+
+        // Act & Assert
+        mockMvc.perform(patch("/users/1/activate")
+                        .with(csrf()))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("PATCH /users/{id}/deactivate should call use case and return 204 No Content")
+    @WithMockUser(roles = "ADMIN")
+    void deactivateUser_ShouldReturn204NoContent() throws Exception {
+        // Arrange
+        doNothing().when(userManagementUseCase).deactivateUser(1L);
+
+        // Act & Assert
+        mockMvc.perform(patch("/users/1/deactivate")
+                        .with(csrf()))
+                .andExpect(status().isNoContent());
+    }
 }

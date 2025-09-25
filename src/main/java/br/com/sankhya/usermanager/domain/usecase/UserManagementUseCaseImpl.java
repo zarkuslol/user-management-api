@@ -137,12 +137,18 @@ public class UserManagementUseCaseImpl implements UserManagementUseCase {
 
     @Override
     public void activateUser(Long id) {
-        // TODO: Implementar
+        User user = userRepositoryPort.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found: " + id)); // Idealmente, uma exceção customizada
+        user.setEnabled(true);
+        userRepositoryPort.save(user);
     }
 
     @Override
     public void deactivateUser(Long id) {
-        // TODO: Implementar
+        User user = userRepositoryPort.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found: " + id)); // Idealmente, uma exceção customizada
+        user.setEnabled(false);
+        userRepositoryPort.save(user);
     }
 
     @Override
